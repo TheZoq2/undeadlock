@@ -13,7 +13,7 @@ use undeadlock::ordered::After;
 struct Resource1 (Vec<i32>);
 struct Resource2 (Vec<String>);
 
-// Implement Greater such that Resource3 > Resource2 > Resource1 > ()
+// Implement After such that Resource3 > Resource2 > Resource1 > ()
 order!(Resource2, Resource1);
 
 

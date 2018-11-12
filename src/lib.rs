@@ -1,7 +1,6 @@
-#[macro_use]
 pub mod ordered;
 
-use ordered::After;
+pub use ordered::{After};
 
 use std::sync::{MutexGuard, Mutex, PoisonError};
 use std::marker::PhantomData;
@@ -70,6 +69,7 @@ impl<T> OrderedMutex<T> {
 }
 
 
+#[cfg(test)]
 order!(f32, i32);
 
 
@@ -85,8 +85,8 @@ mod ordered_tests {
         let mutex1 = OrderedMutex::new(5);
         let mutex2 = OrderedMutex::new(3.3);
 
-        let (mut next_token, data1) = mutex1.lock(&mut initial_token);
-        let (_final_token, data2) = mutex2.lock(&mut next_token);
+        let (mut next_token, data1) = mutex1.lock(&mut initial_token).unwrap();
+        let (_final_token, data2) = mutex2.lock(&mut next_token).unwrap();
 
         assert_eq!((*data1, *data2), (5, 3.3));
     }
