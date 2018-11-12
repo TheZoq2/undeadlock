@@ -3,7 +3,7 @@ pub mod ordered;
 
 use ordered::After;
 
-use std::sync::{MutexGuard, Mutex};
+use std::sync::{MutexGuard, Mutex, PoisonError};
 use std::marker::PhantomData;
 
 
@@ -57,13 +57,14 @@ impl<T> OrderedMutex<T> {
       Locks the mutex and returns a lock token which can be used to lock mutexes
       `After` this one
     */
-    pub fn lock<'a, 'b, L>(&'a self, _token: &'b mut LockedToken<L>) -> (LockedToken<'b, T>, MutexGuard<'a, T>)
+    pub fn lock<'a, 'b, L>(&'a self, _token: &'b mut LockedToken<L>)
+        -> Result<(LockedToken<'b, T>, MutexGuard<'a, T>), PoisonError<MutexGuard<'a, T>>>
         where
             T: After<L>,
             'b: 'a
     {
         unsafe {
-            (LockedToken::get(), self.mutex.lock().unwrap())
+            Ok((LockedToken::get(), self.mutex.lock()?))
         }
     }
 }
