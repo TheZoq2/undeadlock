@@ -59,7 +59,8 @@ impl<T> OrderedMutex<T> {
     */
     pub fn lock<'a, 'b, L>(&'a self, _token: &'b mut LockedToken<L>) -> (LockedToken<'b, T>, MutexGuard<'a, T>)
         where
-            T: After<L>
+            T: After<L>,
+            'b: 'a
     {
         unsafe {
             (LockedToken::get(), self.mutex.lock().unwrap())
