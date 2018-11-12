@@ -12,11 +12,11 @@ use std::marker::PhantomData;
 
   A LockToken for `()` can be aquired using the `get_initial_token` function.
 */
-pub struct LockedToken<T> {
-    _0: PhantomData<T>
+pub struct LockedToken<'a, T: 'a> {
+    _0: PhantomData<&'a T>
 }
 
-impl<T> LockedToken<T> {
+impl<'a, T> LockedToken<'a, T> {
     /**
       Returns a `LockedToken` of this type. This should only be called if we
       are sure that any preceding locks that we want to lock have already been locked.
@@ -33,7 +33,7 @@ impl<T> LockedToken<T> {
   Each thread should only own one and as such, it is recommended to create it when starting
   a new thread.
 */
-pub unsafe fn get_initial_token() -> LockedToken<()> {
+pub unsafe fn get_initial_token<'a>() -> LockedToken<'a, ()> {
     LockedToken::get()
 }
 
@@ -57,7 +57,7 @@ impl<T> OrderedMutex<T> {
       Locks the mutex and returns a lock token which can be used to lock mutexes
       `After` this one
     */
-    pub fn lock<'a, L>(&'a self, _token: &'a mut LockedToken<L>) -> (LockedToken<T>, MutexGuard<'a, T>)
+    pub fn lock<'a, 'b, L>(&'a self, _token: &'b mut LockedToken<L>) -> (LockedToken<'b, T>, MutexGuard<'a, T>)
         where
             T: After<L>
     {
