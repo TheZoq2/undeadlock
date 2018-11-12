@@ -17,6 +17,10 @@ pub struct LockedToken<T> {
 }
 
 impl<T> LockedToken<T> {
+    /**
+      Returns a `LockedToken` of this type. This should only be called if we
+      are sure that any preceding locks that we want to lock have already been locked.
+    */
     unsafe fn get() -> Self {
         Self {
             _0: PhantomData{}
@@ -25,32 +29,46 @@ impl<T> LockedToken<T> {
 }
 
 /**
-  
+  Returns a LockedToken<()> which has to be used as a token when locking the first mutex.
+  Each thread should only own one and as such, it is recommended to create it when starting
+  a new thread.
 */
 pub unsafe fn get_initial_token() -> LockedToken<()> {
     LockedToken::get()
 }
 
 
+/**
+  A mutex which can only be locked if we hold a lock token to a preceding type.
+*/
 pub struct OrderedMutex<T> {
     mutex: Mutex<T>,
 }
 
 impl<T> OrderedMutex<T> {
+    /**
+      Creates a new OrderedMutex containing `data`
+    */
     pub fn new(data: T) -> Self {
         OrderedMutex{mutex: Mutex::new(data)}
     }
 
+    /**
+      Locks the mutex and returns a lock token which can be used to lock mutexes
+      `After` this one
+    */
     pub fn lock<'a, L>(&'a self, _token: &'a mut LockedToken<L>) -> (LockedToken<T>, MutexGuard<'a, T>)
         where
             T: After<L>
     {
-        (LockedToken::get(), self.mutex.lock().unwrap())
+        unsafe {
+            (LockedToken::get(), self.mutex.lock().unwrap())
+        }
     }
 }
 
 
-order!(i32, f32);
+order!(f32, i32);
 
 
 #[cfg(test)]
