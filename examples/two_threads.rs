@@ -21,6 +21,7 @@ fn main() {
     let r1_lock = Arc::new(OrderedMutex::new(Resource1(vec!())));
     let r2_lock = Arc::new(OrderedMutex::new(Resource2(vec!())));
 
+    // Try playing around with the order that resources are locked
     {
         let (r1_lock, r2_lock) = (r1_lock.clone(), r2_lock.clone());
         thread::spawn(move || {
