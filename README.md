@@ -7,8 +7,7 @@ Undeadlock attempts to remove the possibility of deadlocks at compile time to gu
 
 ## Background
 
-There are four necessary conditions in which deadlocks can occur 
-[1](https://en.wikipedia.org/wiki/Deadlock):
+There are four necessary conditions for deadlocks to occur [1]
 
 - Mutual exclusion
 - Hold and wait or resource holding
@@ -91,5 +90,5 @@ find errors in my reasoning, I would love to hear them.
 # References
 
 
-[1] - https://en.wikipedia.org/wiki/Deadlock
-[2] - https://www.researchgate.net/publication/50365788_A_Compile-Time_Deadlock_Detection_Pattern
+- [1] - https://en.wikipedia.org/wiki/Deadlock
+- [2] - https://www.researchgate.net/publication/50365788_A_Compile-Time_Deadlock_Detection_Pattern
