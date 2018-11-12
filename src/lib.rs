@@ -1,25 +1,34 @@
+#[macro_use]
 pub mod ordered;
 
-use ordered::Greater;
+use ordered::After;
 
 use std::sync::{MutexGuard, Mutex};
 use std::marker::PhantomData;
 
 
-pub struct Token<T> {
+/**
+  Token used to indicate that a lock on type `T` has been locked.
+
+  A LockToken for `()` can be aquired using the `get_initial_token` function.
+*/
+pub struct LockedToken<T> {
     _0: PhantomData<T>
 }
 
-impl<T> Token<T> {
-    fn get() -> Self {
+impl<T> LockedToken<T> {
+    unsafe fn get() -> Self {
         Self {
             _0: PhantomData{}
         }
     }
 }
 
-pub unsafe fn get_initial_token() -> Token<()> {
-    Token{_0: PhantomData{}}
+/**
+  
+*/
+pub unsafe fn get_initial_token() -> LockedToken<()> {
+    LockedToken::get()
 }
 
 
@@ -32,18 +41,16 @@ impl<T> OrderedMutex<T> {
         OrderedMutex{mutex: Mutex::new(data)}
     }
 
-    pub fn lock<'a, L>(&'a self, _token: &'a mut Token<L>) -> (Token<T>, MutexGuard<'a, T>)
+    pub fn lock<'a, L>(&'a self, _token: &'a mut LockedToken<L>) -> (LockedToken<T>, MutexGuard<'a, T>)
         where
-            T: Greater<L>
+            T: After<L>
     {
-        (Token::get(), self.mutex.lock().unwrap())
+        (LockedToken::get(), self.mutex.lock().unwrap())
     }
 }
 
 
-impl Greater<()> for i32 {}
-impl Greater<i32> for f32 {}
-impl Greater<()> for f32 {}
+order!(i32, f32);
 
 
 #[cfg(test)]
